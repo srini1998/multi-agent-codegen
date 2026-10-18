@@ -16,6 +16,27 @@ More roles did not automatically improve this cohort. The full-role versus singl
 
 These are saved generation outputs, not a fresh agent run. The original generation durations/token usage remain historical; regrading did not call a model. The complete HumanEval corpus has 164 tasks, but the frozen comparison deliberately contains 36. Separate ongoing/completed local generation logs must not be confused with that fixed cohort. Model pretraining exposure to HumanEval is unknown.
 
+## Full HumanEval run (all 164 tasks)
+
+After the frozen 36-task cohort, the same three strategies were run on the full 164-task set
+(`examples/full164/`, local qwen2.5:3b, temperature 0) and then regraded in the pinned container
+checker (`docs/full164-comparison.json`). The original host-sandbox grading is kept in each row as
+`original_hidden`; only one of 492 results changed between graders.
+
+| Strategy | Solved (hidden tests) | Model calls / task | vs single coder (paired bootstrap 95% CI) |
+|---|---:|---:|---|
+| Single coder | 107 / 164 (65.2%) | 1.00 | |
+| Execution feedback | 106 / 164 (64.6%) | 1.20 | −0.6 pts (−1.8 to 0.0); fixed 0, broke 1 |
+| Planner / coder / reviewer | 90 / 164 (54.9%) | 6.63 | **−10.4 pts (−18.3 to −2.4)**; fixed 14, broke 31 |
+
+On the full set the multi-role loop is measurably worse than a single coder, for 6.6× the model
+calls. The visible docstring examples are a weak acceptance signal: 44 of the 148
+execution-feedback solutions that passed their examples failed the hidden tests. Only 76 of 164
+prompts contain `>>>` examples at all, and two of those (HumanEval/47, /116) contain examples that
+the canonical solution itself fails. Early `full` tasks were generated before a fix that lets a
+truncated planner/reviewer JSON reply retry with more tokens; the strategy and prompts are otherwise
+identical.
+
 ## Actual execution and evaluator boundaries
 
 Generated Python runs in a fixed local container, with **no host directory or Docker socket mounted**, networking disabled, a read-only root, a bounded writable temporary filesystem, an unprivileged user, CPU/memory/PID/output/time limits, and no extra capabilities. Missing container infrastructure fails closed; code never falls back to executing on the host. Only the reviewed executor controls Docker flags. The model supplies Python source, not container configuration or shell commands.
