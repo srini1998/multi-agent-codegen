@@ -1,5 +1,7 @@
 # Local coding strategies, measured rather than assumed
 
+**Current public website:** [pairbench.vercel.app](https://pairbench.vercel.app). The interface is English-only and its main task requires no AI-weight download. See [current interface, datasets and execution boundaries](site/INTERFACE.md). The backend experiments and historical measurements below are separate from the current public UI.
+
 Compare a single Coder, execution-feedback revisions, and Planner → Coder → Reviewer roles using local Ollama. All strategies solve the same HumanEval functions; only the final independent checker sees the hidden tests. This is a bounded function-generation experiment, not an unrestricted coding assistant.
 
 ## What the recorded example establishes
