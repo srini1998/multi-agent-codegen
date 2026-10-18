@@ -192,9 +192,7 @@ function App() {
               onChange={(e) => {
                 const i = Number(e.target.value);
                 setIdx(i);
-                setCode(
-                  `def ${tasks[i].entry}(${tasks[i].prompt.split("def " + tasks[i].entry + "(")[1]?.split(")")[0] ?? ""}):\n    pass\n`,
-                );
+                setCode(tasks[i].prompt + "    pass\n");
                 setStatus("");
               }}
             >
@@ -229,7 +227,15 @@ function App() {
               id="code"
               spellCheck={false}
               value={code}
-              onChange={(e) => setCode(e.target.value)}
+              onChange={(e) => {
+                setCode(e.target.value);
+                setStatus(
+                  t(
+                    "Code changed. Run checks again.",
+                    "コードを変更しました。再度チェックしてください。",
+                  ),
+                );
+              }}
               disabled={!!busy}
               maxLength={64000}
             />
