@@ -1,0 +1,45 @@
+{
+ "tasks": 164,
+ "grader": "pinned local container (see README)",
+ "strategies": {
+  "single": {
+   "solved": 107,
+   "solve_rate": 0.6524,
+   "mean_llm_calls": 1.0,
+   "approved": null,
+   "approved_but_hidden_failed": null
+  },
+  "exec-feedback": {
+   "solved": 106,
+   "solve_rate": 0.6463,
+   "mean_llm_calls": 1.2,
+   "approved": 148,
+   "approved_but_hidden_failed": 44,
+   "vs_single": {
+    "diff": -0.0061,
+    "ci95": [
+     -0.0183,
+     0.0
+    ],
+    "fixed": 0,
+    "broken": 1
+   }
+  },
+  "full": {
+   "solved": 90,
+   "solve_rate": 0.5488,
+   "mean_llm_calls": 6.63,
+   "approved": 17,
+   "approved_but_hidden_failed": 4,
+   "vs_single": {
+    "diff": -0.1037,
+    "ci95": [
+     -0.1829,
+     -0.0244
+    ],
+    "fixed": 14,
+    "broken": 31
+   }
+  }
+ }
+}
