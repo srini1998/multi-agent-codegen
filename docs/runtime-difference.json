@@ -1,0 +1,41 @@
+{
+  "task_id": "HumanEval/32",
+  "native_python": "3.12.10 (main, Apr  8 2025, 11:35:47) [Clang 16.0.0 (clang-1600.0.26.6)]",
+  "native_platform": "macOS-26.5.2-arm64-arm-64bit",
+  "native_reviewed_math_only_runs": [
+    {
+      "passed": false,
+      "last_error": [
+        "AssertionError"
+      ]
+    },
+    {
+      "passed": false,
+      "last_error": [
+        "AssertionError"
+      ]
+    },
+    {
+      "passed": false,
+      "last_error": [
+        "AssertionError"
+      ]
+    }
+  ],
+  "fixed_container_runs": [
+    {
+      "passed": true,
+      "category": "candidate"
+    },
+    {
+      "passed": true,
+      "category": "candidate"
+    },
+    {
+      "passed": true,
+      "category": "candidate"
+    }
+  ],
+  "image": "python@sha256:f3fa41d74a768c2fce8016b98c191ae8c1bacd8f1152870a3f9f87d350920b7c",
+  "scope": "One manually reviewed math-only solution replayed to diagnose a runtime-sensitive result. This is not a host-execution fallback for generated code."
+}
