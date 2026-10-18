@@ -1,6 +1,5 @@
 @import "@fontsource-variable/geist";
 @import "@fontsource-variable/geist-mono";
-@import "@fontsource-variable/noto-sans-jp";
 :root {
   font-family: "Geist Variable", "Noto Sans JP Variable", sans-serif;
   color: #d8e7d6;
@@ -468,3 +467,4 @@ dialog pre {
     display: none;
   }
 }
+.hero h1{font-size:clamp(3rem,8vw,7.5rem);max-width:100%;overflow-wrap:break-word}.hero .hero-bottom{align-items:end}.ai-box summary{cursor:pointer}.ai-box h3{font-size:1.2rem}
