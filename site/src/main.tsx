@@ -19,6 +19,7 @@ function App() {
     [busy, setBusy] = useState(""),
     [status, setStatus] = useState(""),
     [entries, setEntries] = useState<unknown[]>([]);
+  const agentNote = useRef("");
   const worker = useRef<Worker | null>(null),
     timer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const task = tasks[idx];
@@ -44,6 +45,8 @@ function App() {
     setBusy("agent");
     setStatus(t("Asking the cloud model…", "端末上で生成中…"));
     let context = "";
+    let draft = "";
+    const calls: { role: string; model?: string; ms: number }[] = [];
     try {
       const roles =
         strategy === "team" ? ["planner", "coder", "reviewer"] : ["coder"];
@@ -61,6 +64,7 @@ function App() {
           512,
         );
         log({ at: new Date().toISOString(), role, prompt, ...result });
+        calls.push({ role, model: result.model, ms: result.ms });
         context += `\n${role}: ${result.text}`;
         if (role !== "planner") {
           const text = result.text;
@@ -76,22 +80,23 @@ function App() {
               ),
             );
           setCode(candidate);
+          draft = candidate;
         }
       }
+      agentNote.current = `(${calls[0]?.model ?? "cloud model"}, ${calls.length} call${calls.length > 1 ? "s" : ""}, ${calls.reduce((n, c) => n + c.ms, 0)} ms: ${calls.map((c) => c.role).join(" → ")}.)`;
       setStatus(
-        t(
-          "Draft ready. Run the tests; a review is not proof.",
-          "下書き完了。レビューだけで正解とは限りません。テストしてください。",
-        ),
+        "Draft written by " + agentNote.current + " Now running the real HumanEval tests on it in Python…",
       );
     } catch (e) {
       setStatus(String(e));
       log({ error: String(e) });
-    } finally {
       setBusy("");
+      return;
     }
+    // The model's claim is not trusted: the draft is executed against the exercise's own tests.
+    run(draft, "cloud-draft");
   }
-  function run() {
+  function run(src: string = code, origin = "editor") {
     setBusy("test");
     setStatus(
       t(
@@ -129,7 +134,7 @@ function App() {
           finish(t("Stopped after 15 seconds.", "15秒で停止しました。"));
           log({ kind: "test", task: task.id, ok: false, reason: "timeout" });
         }, 15000);
-        w.postMessage({ code, test: task.test, entry: task.entry });
+        w.postMessage({ code: src, test: task.test, entry: task.entry });
       } else if (m.type === "result") {
         const label = m.ok
           ? t(
@@ -140,8 +145,18 @@ function App() {
               "Checks failed. Edit your code and try again.",
               "チェックに失敗しました。コードを修正してください。",
             );
-        log({ kind: "test", task: task.id, code, ...m });
-        finish(label + (m.output ? "\n" + m.output : ""));
+        log({ kind: "test", task: task.id, origin, code: src, ...m });
+        finish(
+          (origin === "cloud-draft"
+            ? (m.ok
+                ? "Fresh cloud draft PASSED the real tests. "
+                : "Fresh cloud draft FAILED the real tests — the model was wrong. ") +
+              agentNote.current +
+              "\n"
+            : "") +
+            label +
+            (m.output ? "\n" + m.output : ""),
+        );
       }
     };
   }
@@ -241,7 +256,7 @@ function App() {
               maxLength={64000}
             />
             <div className="actions">
-              <button className="cta" onClick={run} disabled={!!busy}>
+              <button className="cta" onClick={() => run()} disabled={!!busy}>
                 <Play size={18} />
                 {t("Run checks", "チェックを実行")}
               </button>
@@ -280,7 +295,7 @@ function App() {
               <h3>{t("Generate a new draft (optional cloud)", "下書きを依頼する")}</h3>
               <p>
                 {t(
-                  "One coder, or a planner → coder → reviewer. Same cloud model. More roles can make the answer worse.",
+                  "One coder, or a planner → coder → reviewer, on Groq’s free plan (openai/gpt-oss-20b). The new draft is then executed against the exercise’s real tests in your browser — the model’s own claim is never trusted. More roles can make the answer worse.",
                   "単独の作成者、または計画→作成→レビュー。同じモデルでも役割を増やすと結果が悪くなることがあります。",
                 )}
               </p>
